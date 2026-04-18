@@ -60,7 +60,7 @@ function buildContent(data, side) {
     } 
     if (data.type === 'inner-cover') return `<div class="${side}-content inner-cover"><div class="inner-ornament">❦</div></div>`;
     if (data.type === 'back-cover-outside') return `<div class="back-content cover"><div class="cover-ornament" style="transform: rotate(180deg);">❦</div><p class="subtitle" style="margin-top: 30px;">Siempre tuyo...</p></div>`;
-    if (data.type === 'photo') return `<div class="${side}-content page"><div class="photo-frame"><img src="${data.src}" alt="Foto ${data.caption}" loading="lazy"></div><div class="photo-caption">${data.caption}</div></div>`;
+    if (data.type === 'photo') return `<div class="${side}-content page"><div class="photo-frame"><img src="${data.src}" alt="Foto ${data.caption}"></div><div class="photo-caption">${data.caption}</div></div>`;
     if (data.type === 'page') {
         let content = '';
         if(data.title) content += `<h2 class="chapter">${data.title}</h2>`;
