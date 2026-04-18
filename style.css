@@ -425,16 +425,24 @@ body {
     }
     .mobile-prompts { display: flex; }
     
-    /* DESACTIVAR COSAS PESADAS EN CELULAR DEFINITIVAMENTE */
+    /* DESACTIVAR COSAS PESADAS Y EL FADE-IN EN CELULAR PARA GARANTIZAR QUE SE VEA EL TEXTO */
     .title, .highlight-name, .photo-frame, .page::after, .cover::after {
         animation: none !important;
+    }
+    
+    .front-content > *, .back-content > * {
+        opacity: 1 !important;
+        transform: translateY(0) scale(1) !important;
+        transition: none !important;
     }
 }
 
 @media (max-width: 900px) and (orientation: landscape) {
     #book {
-        aspect-ratio: 16 / 9;
+        /* Para landscape no usar 16/9, el texto no cabe y se sale. Usamos 1.2 o % directo */
+        aspect-ratio: auto;
         width: 85vw;
+        height: 75vh;
     }
     .mobile-prompts .rotate-msg { display: none; }
     .poem-text { font-size: 1rem; line-height: 1.5; }
