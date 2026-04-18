@@ -100,7 +100,7 @@ body {
 .nav-btn:not([style*="pointer-events: none"]):hover {
     background: var(--gold);
     color: #3b0010;
-    transform: translateY(-5px); 
+    transform: translateY(-5px) scale(1.05); 
 }
 
 .nav-btn.next {
@@ -111,8 +111,8 @@ body {
 }
 
 @keyframes pulseBtn {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 77, 109, 0.2); }
+    100% { transform: scale(1.08); box-shadow: 0 0 30px rgba(255, 77, 109, 0.6); }
 }
 
 #page-indicator {
@@ -184,6 +184,29 @@ body {
     transition: transform 2s ease-in-out;
     transform: translateX(-25%) translateZ(0); 
     will-change: transform;
+    /* Un suave flotar global para el libro completo */
+    animation: gentleBookFloat 10s ease-in-out infinite alternate;
+}
+@keyframes gentleBookFloat {
+    0% { transform: translateX(-25%) translateZ(0) translateY(0px) rotateX(1deg); }
+    100% { transform: translateX(-25%) translateZ(0) translateY(-8px) rotateX(-1deg); }
+}
+
+/* Modificadores dinámicos manejados por JS para acomodar la animación CSS */
+#book.book-opened {
+    animation: gentleBookFloatOpen 10s ease-in-out infinite alternate;
+}
+@keyframes gentleBookFloatOpen {
+    0% { transform: translateX(0%) translateZ(0) translateY(0px) rotateX(1deg); }
+    100% { transform: translateX(0%) translateZ(0) translateY(-8px) rotateX(-1deg); }
+}
+
+#book.book-finished {
+    animation: gentleBookFloatFinished 10s ease-in-out infinite alternate;
+}
+@keyframes gentleBookFloatFinished {
+    0% { transform: translateX(25%) translateZ(0) translateY(0px) rotateX(1deg); }
+    100% { transform: translateX(25%) translateZ(0) translateY(-8px) rotateX(-1deg); }
 }
 
 .paper {
@@ -275,7 +298,13 @@ body {
 
 .page {
     background: radial-gradient(circle at center, #2e0813 0%, #0d0102 100%);
+    animation: sweetPagePulse 8s infinite alternate;
 }
+@keyframes sweetPagePulse {
+    0% { background: radial-gradient(circle at center, #2e0813 0%, #0d0102 100%); }
+    100% { background: radial-gradient(circle at center, #3d0817 0%, #170103 100%); }
+}
+
 .page::after {
     content: '';
     position: absolute;
@@ -283,6 +312,11 @@ body {
     border: 1px solid rgba(230, 184, 162, 0.15);
     pointer-events: none;
     border-radius: 5px;
+    animation: borderGlow 3s infinite alternate;
+}
+@keyframes borderGlow {
+    0% { border-color: rgba(230, 184, 162, 0.1); box-shadow: inset 0 0 0 transparent; }
+    100% { border-color: rgba(230, 184, 162, 0.4); box-shadow: inset 0 0 15px rgba(230, 184, 162, 0.05); }
 }
 
 /* =========================================
@@ -290,7 +324,31 @@ body {
    ========================================= */
 .front-content > *, .back-content > * {
     opacity: 1;
-    transform: none;
+    transform: none; 
+}
+
+/* =========================================
+   ROMANTIC ANIMATIONS (KEYFRAMES)
+   ========================================= */
+@keyframes romanticFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+@keyframes heartbeatText {
+    0%, 100% { transform: scale(1); }
+    10% { transform: scale(1.05); }
+    20% { transform: scale(1); }
+    30% { transform: scale(1.05); }
+    40%, 100% { transform: scale(1); }
+}
+@keyframes photoSway {
+    0%, 100% { transform: rotate(-1.5deg) scale(1); }
+    50% { transform: rotate(1.5deg) scale(1.03); }
+}
+@keyframes slowSpin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
 }
 
 /* =========================================
@@ -302,13 +360,16 @@ body {
     background: #000;
     border: 3px solid var(--gold);
     border-radius: 4px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.8); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
     margin-bottom: 2rem;
     overflow: hidden;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+    /* Movimiento de marco super romántico */
+    animation: photoSway 7s ease-in-out infinite;
+    will-change: transform;
 }
 
 .photo-frame img {
@@ -317,46 +378,63 @@ body {
     object-fit: cover;
     background: rgba(40,10,20, 0.5); 
     transform: scale(1.1) translateZ(0); 
-    transition: transform 20s ease-out;
+    /* Zoom estilo Ken Burns super cinemático */
+    animation: deepZoom 20s infinite alternate;
+}
+@keyframes deepZoom {
+    0% { transform: scale(1.05); }
+    100% { transform: scale(1.25); }
 }
 
 .photo-caption {
     font-family: 'Dancing Script', cursive;
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     color: var(--gold);
     text-shadow: 0 0 10px rgba(255, 77, 109, 0.5); 
+    animation: romanticFloat 5s ease-in-out infinite;
 }
 
 /* =========================================
-   TYPOGRAPHY
+   TYPOGRAPHY & ORNAMENTS
    ========================================= */
 .title {
     font-family: 'Dancing Script', cursive;
-    font-size: 4rem;
+    font-size: 4.2rem;
     line-height: 1;
     color: var(--gold);
     margin-bottom: 0.5rem;
     z-index: 2;
     text-shadow: 0 0 15px rgba(230, 184, 162, 0.5); 
+    animation: romanticFloat 4s ease-in-out infinite;
 }
 
 .subtitle {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-style: italic;
     color: #ffb3c1;
     margin-bottom: 1.5rem;
     z-index: 2;
+    animation: romanticFloat 6s ease-in-out infinite reverse;
 }
 
-.cover-ornament { font-size: 3rem; color: var(--gold); text-shadow: 0 0 10px var(--gold-glow); margin: 25px 0; z-index: 2; }
-.inner-ornament { font-size: 3.5rem; color: rgba(230, 184, 162, 0.15); }
+.cover-ornament, .inner-ornament { 
+    display: inline-block;
+    font-size: 3rem; 
+    color: var(--gold); 
+    text-shadow: 0 0 10px var(--gold-glow); 
+    margin: 25px 0; 
+    z-index: 2; 
+    animation: slowSpin 12s linear infinite;
+    transform-origin: center;
+}
 
 .chapter {
     font-family: 'Dancing Script', cursive;
-    font-size: 2.8rem;
+    font-size: 3rem;
     color: var(--red-glow);
     margin-bottom: 1rem;
-    text-shadow: 0 0 10px rgba(255, 77, 109, 0.3);
+    text-shadow: 0 0 15px rgba(255, 77, 109, 0.5);
+    animation: heartbeatText 4s ease-in-out infinite;
 }
 
 .poem-text {
@@ -371,10 +449,12 @@ body {
 
 .highlight-name {
     font-family: 'Dancing Script', cursive;
-    font-size: 3.5rem;
+    font-size: 3.8rem;
     color: #ff3355;
     text-shadow: 0 0 20px rgba(255, 51, 85, 0.6);
     line-height: 1;
+    display: inline-block;
+    animation: heartbeatText 3s ease-in-out infinite;
 }
 
 /* =========================================
@@ -382,83 +462,3 @@ body {
    ========================================= */
 @media (max-width: 900px) and (orientation: portrait) {
     #book {
-        /* Un libro mas proporcionado tipo novela ligera en celular Portrait */
-        height: 75vh;
-        width: 100vw; 
-        aspect-ratio: auto;
-    }
-    
-    .front-content, .back-content { 
-        padding: 0.5rem 1rem; 
-    }
-    .page::after { inset: 5px; }
-    
-    .title { font-size: 3rem; margin-top: 10px;}
-    .subtitle { font-size: 1.1rem; }
-    .chapter { font-size: 2rem; margin-bottom: 0.5rem; }
-    
-    .poem-text { 
-        font-size: 1rem; 
-        max-width: 95%; 
-        line-height: 1.4;
-    }
-    
-    .highlight-name { font-size: 2.5rem; }
-    .photo-caption { font-size: 1.8rem; margin-bottom: 0; }
-    .photo-frame { width: 85%; margin-bottom: 0.5rem; }
-    
-    .controls { bottom: 15px; }
-    .controls-wrapper { gap: 10px; }
-    .nav-btn { padding: 10px 16px; font-size: 0.95rem; }
-
-    .mobile-prompts { display: flex; }
-    
-    /* DESACTIVAR COSAS PESADAS EN CELULAR DEFINITIVAMENTE */
-    .title, .highlight-name, .photo-frame, .page::after, .cover::after {
-        animation: none !important;
-    }
-    
-    .front-content > *, .back-content > * {
-        opacity: 1 !important;
-        transform: none !important; 
-        transition: none !important;
-    }
-}
-
-/* =========================================
-   MOBILE LANDSCAPE OPTIMIZATION
-   ========================================= */
-@media (max-width: 900px) and (orientation: landscape) {
-    #book {
-        height: 80vh !important;
-        width: 130vh !important; 
-        max-width: 90vw;
-        aspect-ratio: auto; 
-    }
-    .front-content, .back-content { 
-        padding: 0.5rem 1.5rem; 
-    }
-    .page::after { inset: 4px; }
-    .mobile-prompts .rotate-msg { display: none; }
-    
-    .poem-text { font-size: 0.95rem; line-height: 1.4; }
-    .chapter { font-size: 1.6rem; margin-bottom: 0.2rem;}
-    .title { font-size: 2rem;}
-    
-    .photo-frame { width: 35%; margin-bottom: 0.5rem; }
-    .photo-caption { font-size: 1.6rem; margin-top: 0; }
-    
-    .controls { bottom: 5px; }
-    .nav-btn { padding: 6px 14px; font-size: 0.85rem; }
-    #page-indicator { bottom: -20px; font-size: 0.8rem; }
-    
-    .title, .highlight-name, .photo-frame, .page::after, .cover::after {
-        animation: none !important;
-    }
-    
-    .front-content > *, .back-content > * {
-        opacity: 1 !important;
-        transform: none !important; 
-        transition: none !important;
-    }
-}
