@@ -28,13 +28,13 @@ const pagesData = [
 const bookContainer = document.getElementById('book');
 const numOfPapers = pagesData.length;
 
-// Pre-crear fragment para inyección veloz (Performance boost)
 const fragment = document.createDocumentFragment();
 
 pagesData.forEach((paperData, index) => {
     const paperObj = document.createElement('div');
     paperObj.className = 'paper';
     paperObj.id = `p${index + 1}`;
+    // Z-index inverso para stacking
     const zIndexDepth = (numOfPapers - index) * 2;
     paperObj.style.transform = `rotateY(0deg) translateZ(${zIndexDepth}px)`;
     paperObj.setAttribute('data-z', zIndexDepth);
@@ -55,9 +55,7 @@ pagesData.forEach((paperData, index) => {
 bookContainer.appendChild(fragment);
 
 function buildContent(data, side) {
-    if (data.type === 'cover') {
-        return `<div class="front-content cover"><div class="cover-glow"></div><h1 class="title">Ecos de mi<br>Amor y Perdón</h1><p class="subtitle">Para mi reina más hermosa...</p><div class="cover-ornament">❦</div><p class="instruction">Toca Avanzar o Desliza</p></div>`;
-    } 
+    if (data.type === 'cover') return `<div class="front-content cover"><div class="cover-glow"></div><h1 class="title">Ecos de mi<br>Amor y Perdón</h1><p class="subtitle">Para mi reina más hermosa...</p><div class="cover-ornament">❦</div><p class="instruction">Toca Avanzar o Desliza</p></div>`;
     if (data.type === 'inner-cover') return `<div class="${side}-content inner-cover"><div class="inner-ornament">❦</div></div>`;
     if (data.type === 'back-cover-outside') return `<div class="back-content cover"><div class="cover-ornament" style="transform: rotate(180deg);">❦</div><p class="subtitle" style="margin-top: 30px;">Siempre tuyo...</p></div>`;
     if (data.type === 'photo') return `<div class="${side}-content page"><div class="photo-frame"><img src="${data.src}" alt="Foto ${data.caption}"></div><div class="photo-caption">${data.caption}</div></div>`;
@@ -77,37 +75,50 @@ const papersElems = document.querySelectorAll('.paper');
 let currentLocation = 1;
 const maxLocation = numOfPapers + 1;
 
-function updateVisibilityClasses() {
-    document.querySelectorAll('.is-visible').forEach(el => el.classList.remove('is-visible'));
-    if (currentLocation === 1) document.querySelector('#p1 .front').classList.add('is-visible');
-    else if (currentLocation === maxLocation) document.querySelector(`#p${numOfPapers} .back`).classList.add('is-visible');
-    else {
-        document.querySelector(`#p${currentLocation - 1} .back`).classList.add('is-visible');
-        document.querySelector(`#p${currentLocation} .front`).classList.add('is-visible');
-    }
-    if(currentLocation === 1) indicator.innerText = "Inicio";
-    else if(currentLocation === maxLocation) indicator.innerText = "Final";
-    else indicator.innerText = `Página ${currentLocation - 1}`;
+// SISTEMA DE OPTIMIZACIÓN EXTREMA: Desconectar las capas 3D lejanas de la memoria para que los celulares de gama media/baja no se tilden. 
+function optimizeMemory() {
+    papersElems.forEach((paper, index) => {
+        const pageNum = index + 1;
+        // Solo las páginas adyacentes se renderizan en 3D
+        if (Math.abs(pageNum - currentLocation) > 2) {
+            paper.style.display = 'none'; // Descarga completa de la tarjeta gráfica
+        } else {
+            paper.style.display = 'block'; 
+        }
+    });
 }
 
 function updateBookPosition() {
-    const isMobileFull = window.innerWidth <= 900;
+    // Para centrar un libro cerrado, como la portada está del lado DERECHO (50% a 100%),
+    // tenemos que trasladar todo el bloque un -25% a la izquierda para centrarlo visualmente.
     if (currentLocation === 1) {
-        book.style.transform = isMobileFull ? "translateX(0) translateZ(0)" : "translateX(25%) translateZ(0)";
-        book.classList.remove('mobile-open');
+        book.style.transform = "translateX(-25%) translateZ(0)";
     } else if (currentLocation === maxLocation) {
-        book.style.transform = isMobileFull ? "translateX(0) translateZ(0)" : "translateX(-25%) translateZ(0)";
-        book.classList.remove('mobile-open');
+        // En el final, el libro está abierto hacia la IZQUIERDA (0% a 50%).
+        // Hay que trasladarlo hacia un 25% a la derecha para centrarlo.
+        book.style.transform = "translateX(25%) translateZ(0)";
     } else {
-        if (isMobileFull) book.classList.add('mobile-open');
-        else book.style.transform = "translateX(0%) translateZ(0)";
+        // En medio del libro, ambas hojas flanquean el centro. Se queda en 0.
+        book.style.transform = "translateX(0%) translateZ(0)";
     }
-    updateVisibilityClasses();
+
+    if(currentLocation === 1) indicator.innerText = "Inicio";
+    else if(currentLocation === maxLocation) indicator.innerText = "Final";
+    else indicator.innerText = `Página ${currentLocation - 1}`;
+    
+    // Ejecutar colector de basura 3D
+    optimizeMemory();
 }
+
 
 function goNextPage() {
     if (currentLocation < maxLocation) {
         const currentPaper = papersElems[currentLocation - 1];
+        
+        // Primero prender la futura pagina para que no haya flashes invisibles
+        const nextTarget = currentLocation + 2; 
+        if(nextTarget <= numOfPapers) papersElems[nextTarget - 1].style.display = 'block';
+
         currentPaper.classList.add("flipped");
         currentPaper.style.transform = `rotateY(-180deg) translateZ(${currentPaper.getAttribute('data-z')}px)`;
         currentLocation++;
@@ -115,58 +126,56 @@ function goNextPage() {
         if(currentLocation === maxLocation) { nextBtn.style.opacity = '0.3'; nextBtn.style.pointerEvents = 'none'; }
         prevBtn.style.opacity = '1'; prevBtn.style.pointerEvents = 'auto';
         
-        // Evitar multiples sparks en celulares muy lentos
-        if(Math.random() > 0.5) createTouchSparks(window.innerWidth/2, window.innerHeight/2, window.innerWidth > 900 ? 5 : 2); 
+        if(window.innerWidth > 900 && Math.random() > 0.5) createTouchSparks(window.innerWidth/2, window.innerHeight/2, 4); 
     }
 }
 
 function goPrevPage() {
     if (currentLocation > 1) {
         const prevPaper = papersElems[currentLocation - 2];
+
+        // Asegurar despertar la pagina
+        const prevTarget = currentLocation - 3;
+        if(prevTarget >= 0) papersElems[prevTarget].style.display = 'block';
+
         prevPaper.classList.remove("flipped");
         prevPaper.style.transform = `rotateY(0deg) translateZ(${prevPaper.getAttribute('data-z')}px)`;
         currentLocation--;
         updateBookPosition();
         if (currentLocation === 1) { prevBtn.style.opacity = '0.3'; prevBtn.style.pointerEvents = 'none'; }
         nextBtn.style.opacity = '1'; nextBtn.style.pointerEvents = 'auto';
-        if(Math.random() > 0.5) createTouchSparks(window.innerWidth/2, window.innerHeight/2, window.innerWidth > 900 ? 5 : 2);
+        
+        if(window.innerWidth > 900 && Math.random() > 0.5) createTouchSparks(window.innerWidth/2, window.innerHeight/2, 4);
     }
 }
 
-// SWIPE GESTURES RESPONSIVE & OPTIMIZED (Throttled touch moves)
+// SWIPE EVENTS 
 let touchStartX = 0;
 let touchEndX = 0;
 const SWIPE_THRESHOLD = 50;
-let lastTouchMove = 0;
 
 document.addEventListener('touchstart', e => {
     touchStartX = e.changedTouches[0].screenX;
-    createTouchSparks(e.changedTouches[0].clientX, e.changedTouches[0].clientY, 1);
 }, {passive: true});
 
-document.addEventListener('touchmove', e => {
+// Suspendemos partículas de touch en celulares para máxima batería y fluidéz en el libro
+let lastMouseMove = 0;
+document.addEventListener('mousemove', e => {
+    const isMobile = window.innerWidth <= 900;
+    if(isMobile) return; 
+
     const now = Date.now();
-    // Limitar creacion de Sparks a máximo 20 frames por segundo durante swipe para salvar al GPU de mobile
-    if(now - lastTouchMove > 50) {
-        if(Math.random() > 0.6) createTouchSparks(e.touches[0].clientX, e.touches[0].clientY, 1);
-        lastTouchMove = now;
+    if(now - lastMouseMove > 60) { 
+        if(Math.random() > 0.7) createTouchSparks(e.clientX, e.clientY, 1);
+        lastMouseMove = now;
     }
-}, {passive: true});
+});
 
 document.addEventListener('touchend', e => {
     touchEndX = e.changedTouches[0].screenX;
     if (touchStartX - touchEndX > SWIPE_THRESHOLD) goNextPage();
     if (touchEndX - touchStartX > SWIPE_THRESHOLD) goPrevPage();
 }, {passive: true});
-
-let lastMouseMove = 0;
-document.addEventListener('mousemove', e => {
-    const now = Date.now();
-    if(now - lastMouseMove > 50) { /* Limitar el mouse en desktop también para max framerate */
-        if(Math.random() > 0.7) createTouchSparks(e.clientX, e.clientY, 1);
-        lastMouseMove = now;
-    }
-});
 
 prevBtn.addEventListener('click', goPrevPage);
 nextBtn.addEventListener('click', goNextPage);
@@ -182,21 +191,22 @@ const canvas = document.getElementById('petalsCanvas');
 const ctx = canvas.getContext('2d', { alpha: true });
 let particlesArray = [];
 let sparksArray = [];
-// Reducción agresiva en celulares. 10 pétalos bastan para el efecto romántico sin matar FPS
+
+// En celular, bajar a solo 4 pétalos cayendo lentamente para garantizar 60FPS intocables.
 const isMobile = window.innerWidth < 900;
-const numberOfParticles = isMobile ? 8 : 25; 
+const numberOfParticles = isMobile ? 4 : 20; 
 
 function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 window.addEventListener('resize', resizeCanvas);
-resizeCanvas(); // init size
+resizeCanvas(); 
 
 class Particle {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height - canvas.height;
         this.size = Math.random() * 8 + 6;
-        this.speedX = Math.random() * 2 - 1;
-        this.speedY = Math.random() * 1.5 + 0.5;
+        this.speedX = Math.random() * 1.5 - 0.75;
+        this.speedY = Math.random() * 1.2 + 0.3;
         this.angle = Math.random() * Math.PI * 2;
         this.spin = Math.random() * 0.05 - 0.025;
         this.scaleY = Math.random() * 0.5 + 0.5;
@@ -215,7 +225,6 @@ class Particle {
         ctx.beginPath(); ctx.ellipse(0, 0, this.size, this.size/2, 0, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         
-        // Completamente prohibido el shadow blur en mobile Canvas 2D
         if(!isMobile) { ctx.shadowBlur = 5; ctx.shadowColor = this.color; }
         
         ctx.fill(); ctx.restore();
@@ -225,34 +234,27 @@ class Particle {
 class Spark {
     constructor(x, y) {
         this.x = x; this.y = y;
-        this.size = Math.random() * 2.5 + 1; // Un pelo más pequeñas
-        this.speedX = (Math.random() - 0.5) * 3;
-        this.speedY = (Math.random() - 0.5) * 3 - 1;
+        this.size = Math.random() * 2 + 1; 
+        this.speedX = (Math.random() - 0.5) * 2;
+        this.speedY = (Math.random() - 0.5) * 2 - 1;
         this.life = 100;
         this.color = (Math.random() > 0.5) ? 'rgba(255, 184, 162, ' : 'rgba(255, 77, 109, ';
     }
     update() {
         this.x += this.speedX; this.y += this.speedY;
-        this.life -= 4; // Mueren el doble de rápido para liberar ram
+        this.life -= 4; 
         this.size *= 0.94;
     }
     draw() {
         ctx.fillStyle = this.color + (this.life/100) + ')';
         ctx.beginPath();
-        // Rectangulos pequeños compilan infinitamente más rápido en 2D Canvas que arcos.
-        // Simulando chispas
-        if(isMobile) {
-           ctx.fillRect(this.x, this.y, this.size, this.size);
-        } else {
-           ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-           ctx.fill();
-        }
+        if(isMobile) { ctx.fillRect(this.x, this.y, this.size, this.size); } 
+        else { ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
     }
 }
 
 function createTouchSparks(x, y, count = 2) {
-    // Si tenemos demasiadas Sparks, abortar creación (Anti-Lag safeguard)
-    if (sparksArray.length > (isMobile ? 15 : 40)) return; 
+    if (sparksArray.length > 25) return; 
     for(let i=0; i<count; i++) sparksArray.push(new Spark(x, y));
 }
 
@@ -261,20 +263,14 @@ function initParticles() {
 }
 
 function animateParticles() {
-    // Para moviles `clearRect` es más robusto y rápido.
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
-        particlesArray[i].draw();
+        particlesArray[i].update(); particlesArray[i].draw();
     }
-    
     for (let i = 0; i < sparksArray.length; i++) {
-        sparksArray[i].update();
-        sparksArray[i].draw();
+        sparksArray[i].update(); sparksArray[i].draw();
     }
     sparksArray = sparksArray.filter(spark => spark.life > 0);
-    
     requestAnimationFrame(animateParticles);
 }
 
