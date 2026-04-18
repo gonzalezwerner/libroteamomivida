@@ -462,3 +462,63 @@ body {
    ========================================= */
 @media (max-width: 900px) and (orientation: portrait) {
     #book {
+        height: 75vh;
+        width: 100vw; 
+        aspect-ratio: auto;
+    }
+    
+    .front-content, .back-content { 
+        padding: 0.5rem 1rem; 
+    }
+    .page::after { inset: 5px; }
+    
+    .title { font-size: 3.2rem; margin-top: 10px;}
+    .subtitle { font-size: 1.2rem; }
+    .chapter { font-size: 2.2rem; margin-bottom: 0.5rem; }
+    
+    .poem-text { 
+        font-size: 1rem; 
+        max-width: 95%; 
+        line-height: 1.4;
+    }
+    
+    .highlight-name { font-size: 2.8rem; }
+    .photo-caption { font-size: 2.2rem; margin-bottom: 0; }
+    .photo-frame { width: 85%; margin-bottom: 0.5rem; }
+    
+    .controls { bottom: 15px; }
+    .controls-wrapper { gap: 10px; }
+    .nav-btn { padding: 10px 16px; font-size: 0.95rem; }
+
+    .mobile-prompts { display: flex; }
+    
+    /* Nota: Se han reactivado las animaciones CSS porque la memoria ya fue optimizada por JS! */
+}
+
+/* =========================================
+   MOBILE LANDSCAPE OPTIMIZATION
+   ========================================= */
+@media (max-width: 900px) and (orientation: landscape) {
+    #book {
+        height: 80vh !important;
+        width: 130vh !important; 
+        max-width: 90vw;
+        aspect-ratio: auto; 
+    }
+    .front-content, .back-content { 
+        padding: 0.5rem 1.5rem; 
+    }
+    .page::after { inset: 4px; }
+    .mobile-prompts .rotate-msg { display: none; }
+    
+    .poem-text { font-size: 0.95rem; line-height: 1.4; }
+    .chapter { font-size: 1.8rem; margin-bottom: 0.2rem;}
+    .title { font-size: 2.2rem;}
+    
+    .photo-frame { width: 35%; margin-bottom: 0.5rem; }
+    .photo-caption { font-size: 1.8rem; margin-top: 0; }
+    
+    .controls { bottom: 5px; }
+    .nav-btn { padding: 6px 14px; font-size: 0.85rem; }
+    #page-indicator { bottom: -20px; font-size: 0.8rem; }
+}
