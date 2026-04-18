@@ -13,15 +13,21 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 body {
     background-image: url('./fondo.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    height: 100vh;
     font-family: 'Cormorant Garamond', serif;
     color: var(--gold);
-    overflow: hidden;
     position: relative;
     overscroll-behavior-y: none; 
 }
@@ -163,8 +169,8 @@ body {
 #book-container {
     position: absolute;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%; /* Resuelve el bug del corte inferior en celulares Android y Safari */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -432,17 +438,17 @@ body {
     
     .front-content > *, .back-content > * {
         opacity: 1 !important;
-        transform: translateY(0) scale(1) !important;
+        transform: none !important; /* Previene el bug de Chrome de "sangrado" sobre la otra pagina en 3D */
         transition: none !important;
     }
 }
 
 @media (max-width: 900px) and (orientation: landscape) {
     #book {
-        /* En Landscape la altura es el límite, no la anchura. Mantenemos el libro proporcionado */
-        height: 85vh;
-        width: auto;
-        aspect-ratio: 14 / 10; 
+        /* Usar unidades explícitas para eludir bugs de aspect-ratio en Android */
+        height: 85%;
+        width: 125vh; /* Forza el ancho a estar basado en la altura */
+        aspect-ratio: auto; 
     }
     .front-content, .back-content { 
         padding: 0.5rem 1rem; 
