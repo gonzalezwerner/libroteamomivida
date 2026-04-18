@@ -177,6 +177,7 @@ body {
     aspect-ratio: 16 / 10;
     position: relative;
     transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
     transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
     transform: translateX(25%) translateZ(0); 
     will-change: transform;
@@ -191,11 +192,11 @@ body {
     transform-origin: left center;
     transition: transform 1.4s cubic-bezier(0.25, 1, 0.5, 1);
     transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
     border-radius: 5px 15px 15px 5px;
     /* Simplificación de la sombra de la hoja (1px sin blur rinde más) */
     box-shadow: -1px 0 0px rgba(0,0,0,0.5); 
-    will-change: transform;
-    /* Quitamos el z-index handling de CSS ya que translateZ funciona perfecto */
+    /* will-change: transform quitao previniendo memory leak en moviles con muchas hojas */
 }
 
 .paper.flipped {
@@ -210,6 +211,7 @@ body {
     top: 0;
     left: 0;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     border-radius: inherit;
     overflow: hidden; /* Causa algo de reflow, pero vital para q fotos no se salgan */
     background-color: var(--paper-dark);
@@ -292,7 +294,6 @@ body {
     opacity: 0;
     transform: translateY(20px); /* Eliminar "scale" ayuda al CPU de móviles lentos, el translateY solo es más rápido */
     transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    will-change: transform, opacity;
 }
 
 .is-visible > .front-content > *:nth-child(1), .is-visible > .back-content > *:nth-child(1) { transition-delay: 0.7s; opacity: 1; transform: translateY(0); }
