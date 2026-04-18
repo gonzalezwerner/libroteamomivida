@@ -1,3 +1,11 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 :root {
     --gold: #e6b8a2;
     --gold-glow: rgba(230, 184, 162, 0.7);
@@ -13,14 +21,6 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
 body {
     background-image: url('./fondo.png');
     background-size: cover;
@@ -32,7 +32,6 @@ body {
     overscroll-behavior-y: none; 
 }
 
-/* OPTIMIZED: Viñeta que "respira". Animamos Opacidad en lugar de Background para evitar reflows del GPU */
 .overlay {
     position: absolute;
     inset: 0;
@@ -45,7 +44,7 @@ body {
 
 @keyframes heartbeatVignette {
     0% { opacity: 1; }
-    100% { opacity: 0.6; } /* Baja la oscuridad un poco para latir, rinde 1000x más rápido */
+    100% { opacity: 0.6; } 
 }
 
 #petalsCanvas {
@@ -101,13 +100,12 @@ body {
 .nav-btn:not([style*="pointer-events: none"]):hover {
     background: var(--gold);
     color: #3b0010;
-    transform: translateY(-5px); /* Eliminada la animación de box shadow en hover para mobile */
+    transform: translateY(-5px); 
 }
 
 .nav-btn.next {
     background: rgba(255, 77, 109, 0.2);
     border-color: #ffb3c1;
-    /* Cambio la animación de glow pesada por scale super ligero */
     animation: pulseBtn 2s infinite alternate;
     will-change: transform;
 }
@@ -129,7 +127,6 @@ body {
     text-shadow: 0 0 5px var(--gold-glow);
 }
 
-/* UI Prompts Móviles */
 .mobile-prompts {
     position: absolute;
     top: 20px;
@@ -164,13 +161,13 @@ body {
 }
 
 /* =========================================
-   3D BOOK CSS (MAXIMA FLUIDEZ)
+   3D BOOK CSS 
    ========================================= */
 #book-container {
     position: absolute;
     inset: 0;
     width: 100%;
-    height: 100%; /* Resuelve el bug del corte inferior en celulares Android y Safari */
+    height: 100%; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -179,13 +176,13 @@ body {
 }
 
 #book {
-    width: min(90vw, 1100px);
+    width: min(95vw, 1100px);
     aspect-ratio: 16 / 10;
     position: relative;
     transform-style: preserve-3d;
     -webkit-transform-style: preserve-3d;
     transition: transform 2s ease-in-out;
-    transform: translateX(25%) translateZ(0); 
+    transform: translateX(-25%) translateZ(0); 
     will-change: transform;
 }
 
@@ -199,14 +196,12 @@ body {
     transition: transform 2.5s ease-in-out;
     transform-style: preserve-3d;
     -webkit-transform-style: preserve-3d;
-    border-radius: 5px 15px 15px 5px;
-    /* Simplificación de la sombra de la hoja (1px sin blur rinde más) */
+    border-radius: 3px 12px 12px 3px;
     box-shadow: -1px 0 0px rgba(0,0,0,0.5); 
-    /* will-change: transform quitao previniendo memory leak en moviles con muchas hojas */
 }
 
 .paper.flipped {
-    border-radius: 15px 5px 5px 15px;
+    border-radius: 12px 3px 3px 12px;
     box-shadow: 1px 0 0px rgba(0,0,0,0.5);
 }
 
@@ -219,7 +214,7 @@ body {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     border-radius: inherit;
-    overflow: hidden; /* Causa algo de reflow, pero vital para q fotos no se salgan */
+    overflow: hidden; 
     background-color: var(--paper-dark);
 }
 
@@ -237,16 +232,14 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 3.5rem;
+    padding: 3rem 2rem;
     text-align: center;
     position: relative;
 }
 
-/* Sombra lomo central (ESTÁTICA, no más box-shadow animada aquí para salvar el GPU) */
 .front { box-shadow: inset 20px 0 30px rgba(0,0,0,0.9), inset -3px 0 5px rgba(255,255,255,0.05); }
 .back { box-shadow: inset -20px 0 30px rgba(0,0,0,0.9), inset 3px 0 5px rgba(255,255,255,0.05); }
 
-/* Efecto de portada de cuero épico */
 .cover {
     background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 15%, rgba(15,2,5,0.5) 100%), 
                 url('./cover.png');
@@ -261,7 +254,6 @@ body {
     background-size: cover;
 }
 
-/* Optimización: Brillo de cover usando OPACIDAD, no sombras pesadas */
 .cover-glow {
     position: absolute;
     inset: 0;
@@ -287,14 +279,14 @@ body {
 .page::after {
     content: '';
     position: absolute;
-    inset: 15px;
+    inset: 12px;
     border: 1px solid rgba(230, 184, 162, 0.15);
     pointer-events: none;
     border-radius: 5px;
 }
 
 /* =========================================
-   WOW TEXT ANIMATIONS (REMOVED: TEXT NOW SOLIDLY PRINTED ON PAPER)
+   TEXT RULES
    ========================================= */
 .front-content > *, .back-content > * {
     opacity: 1;
@@ -302,15 +294,15 @@ body {
 }
 
 /* =========================================
-   PHOTOS & CINEMATICS (Sin sombras que destruyan el GPU)
+   PHOTOS & CINEMATICS
    ========================================= */
 .photo-frame {
     width: 65%;
     aspect-ratio: 1/1;
     background: #000;
-    border: 4px solid var(--gold);
-    border-radius: 8px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.8); /* Static shadow on mobile */
+    border: 3px solid var(--gold);
+    border-radius: 4px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8); 
     margin-bottom: 2rem;
     overflow: hidden;
     position: relative;
@@ -324,20 +316,15 @@ body {
     height: 100%;
     object-fit: cover;
     background: rgba(40,10,20, 0.5); 
-    transform: scale(1.2) translateZ(0); 
-    transition: transform 12s cubic-bezier(0.25, 1, 0.5, 1);
-    will-change: transform;
-}
-
-.is-visible .photo-frame img {
-    transform: scale(1) translateZ(0);
+    transform: scale(1.1) translateZ(0); 
+    transition: transform 20s ease-out;
 }
 
 .photo-caption {
     font-family: 'Dancing Script', cursive;
-    font-size: 3rem;
+    font-size: 2.5rem;
     color: var(--gold);
-    text-shadow: 0 0 10px rgba(255, 77, 109, 0.4); /* Menos glow blur es más facil d procesar */
+    text-shadow: 0 0 10px rgba(255, 77, 109, 0.5); 
 }
 
 /* =========================================
@@ -345,108 +332,115 @@ body {
    ========================================= */
 .title {
     font-family: 'Dancing Script', cursive;
-    font-size: 4.5rem;
+    font-size: 4rem;
     line-height: 1;
     color: var(--gold);
     margin-bottom: 0.5rem;
     z-index: 2;
-    text-shadow: 0 0 15px rgba(230, 184, 162, 0.5); /* Solo texto sombreado puro, NADA De Drop shadows */
+    text-shadow: 0 0 15px rgba(230, 184, 162, 0.5); 
 }
 
 .subtitle {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-style: italic;
     color: #ffb3c1;
     margin-bottom: 1.5rem;
     z-index: 2;
 }
 
-.cover-ornament { font-size: 3.5rem; color: var(--gold); text-shadow: 0 0 10px var(--gold-glow); margin: 25px 0; z-index: 2; }
-.inner-ornament { font-size: 4rem; color: rgba(230, 184, 162, 0.15); }
+.cover-ornament { font-size: 3rem; color: var(--gold); text-shadow: 0 0 10px var(--gold-glow); margin: 25px 0; z-index: 2; }
+.inner-ornament { font-size: 3.5rem; color: rgba(230, 184, 162, 0.15); }
 
 .chapter {
     font-family: 'Dancing Script', cursive;
-    font-size: 3.3rem;
+    font-size: 2.8rem;
     color: var(--red-glow);
     margin-bottom: 1rem;
     text-shadow: 0 0 10px rgba(255, 77, 109, 0.3);
 }
 
 .poem-text {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     line-height: 1.6;
     color: #ffd1d8;
     text-align: left;
-    max-width: 85%;
+    max-width: 90%;
     font-weight: 400;
 }
 .poem-text.center-text { text-align: center; }
 
 .highlight-name {
     font-family: 'Dancing Script', cursive;
-    font-size: 4.2rem;
+    font-size: 3.5rem;
     color: #ff3355;
     text-shadow: 0 0 20px rgba(255, 51, 85, 0.6);
     line-height: 1;
 }
 
 /* =========================================
-   OPTI MOBILE ABSOLUTO
+   MOBILE PORTRAIT OPTIMIZATION
    ========================================= */
-@media (max-width: 900px) {
+@media (max-width: 900px) and (orientation: portrait) {
     #book {
-        width: 100vw;
-        aspect-ratio: 9 / 13; 
+        /* Un libro mas proporcionado tipo novela ligera en celular Portrait */
+        height: 75vh;
+        width: 100vw; 
+        aspect-ratio: auto;
     }
-    .front-content, .back-content { padding: 1rem 0.5rem; }
+    
+    .front-content, .back-content { 
+        padding: 0.5rem 1rem; 
+    }
     .page::after { inset: 5px; }
     
-    .title { font-size: 3.2rem; margin-top: 15px;}
+    .title { font-size: 3rem; margin-top: 10px;}
     .subtitle { font-size: 1.1rem; }
-    .chapter { font-size: 2.2rem; margin-bottom: 1rem; }
+    .chapter { font-size: 2rem; margin-bottom: 0.5rem; }
     
     .poem-text { 
-        font-size: 1.05rem; 
+        font-size: 1rem; 
         max-width: 95%; 
         line-height: 1.4;
     }
     
-    .highlight-name { font-size: 2.8rem; }
-    .photo-caption { font-size: 2.2rem; }
-    .photo-frame { width: 85%; }
+    .highlight-name { font-size: 2.5rem; }
+    .photo-caption { font-size: 1.8rem; margin-bottom: 0; }
+    .photo-frame { width: 85%; margin-bottom: 0.5rem; }
     
-    .controls { bottom: 10px; }
+    .controls { bottom: 15px; }
     .controls-wrapper { gap: 10px; }
     .nav-btn { padding: 10px 16px; font-size: 0.95rem; }
 
-    #book.mobile-open {
-        transform: scale(0.9) translateX(0%) translateZ(0) !important;
-    }
     .mobile-prompts { display: flex; }
     
-    /* DESACTIVAR COSAS PESADAS Y EL FADE-IN EN CELULAR PARA GARANTIZAR QUE SE VEA EL TEXTO */
+    /* DESACTIVAR COSAS PESADAS EN CELULAR DEFINITIVAMENTE */
     .title, .highlight-name, .photo-frame, .page::after, .cover::after {
         animation: none !important;
     }
     
     .front-content > *, .back-content > * {
         opacity: 1 !important;
-        transform: none !important;
+        transform: none !important; 
+        transition: none !important;
     }
 }
 
+/* =========================================
+   MOBILE LANDSCAPE OPTIMIZATION
+   ========================================= */
 @media (max-width: 900px) and (orientation: landscape) {
     #book {
-        /* Usar unidades explícitas para eludir bugs de aspect-ratio en Android */
-        height: 85%;
-        width: 125vh; /* Forza el ancho a estar basado en la altura */
+        height: 80vh !important;
+        width: 130vh !important; 
+        max-width: 90vw;
         aspect-ratio: auto; 
     }
     .front-content, .back-content { 
-        padding: 0.5rem 1rem; 
+        padding: 0.5rem 1.5rem; 
     }
     .page::after { inset: 4px; }
     .mobile-prompts .rotate-msg { display: none; }
+    
     .poem-text { font-size: 0.95rem; line-height: 1.4; }
     .chapter { font-size: 1.6rem; margin-bottom: 0.2rem;}
     .title { font-size: 2rem;}
@@ -454,11 +448,17 @@ body {
     .photo-frame { width: 35%; margin-bottom: 0.5rem; }
     .photo-caption { font-size: 1.6rem; margin-top: 0; }
     
-    .controls { bottom: 2px; }
+    .controls { bottom: 5px; }
     .nav-btn { padding: 6px 14px; font-size: 0.85rem; }
     #page-indicator { bottom: -20px; font-size: 0.8rem; }
     
-    #book.mobile-open {
-        transform: scale(1) translateX(0%) translateZ(0) !important;
+    .title, .highlight-name, .photo-frame, .page::after, .cover::after {
+        animation: none !important;
+    }
+    
+    .front-content > *, .back-content > * {
+        opacity: 1 !important;
+        transform: none !important; 
+        transition: none !important;
     }
 }
