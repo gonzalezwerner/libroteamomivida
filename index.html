@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para mi Reina - Geraldine</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <canvas id="petalsCanvas"></canvas>
+    <div class="overlay"></div>
+
+    <div class="mobile-prompts" id="mobile-prompts">
+        <div class="prompt-msg">
+            <i class="fas fa-hand-pointer"></i>
+            <span>Puedes deslizar (swipe) la pantalla</span>
+        </div>
+        <div class="prompt-msg rotate-msg">
+            <i class="fas fa-mobile-alt"></i>
+            <span>Para una magia total, gira tu celular</span>
+        </div>
+    </div>
+
+    <div id="book-container">
+        <!-- El libro generará sus páginas dinámicamente con JS -->
+        <div id="book"></div>
+    </div>
+
+    <div class="controls">
+        <div class="controls-wrapper">
+            <button id="prev-btn" class="nav-btn"><i class="fas fa-arrow-left"></i> Volver</button>
+            <button id="next-btn" class="nav-btn next">Avanzar <i class="fas fa-arrow-right"></i></button>
+            <div id="page-indicator">Portada</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

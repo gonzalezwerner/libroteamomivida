@@ -1,0 +1,446 @@
+:root {
+    --gold: #e6b8a2;
+    --gold-glow: rgba(230, 184, 162, 0.7);
+    --red-glow: #ff4d6d;
+    --bg-dark: #0a0002;
+    --paper-dark: #1f050b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-image: url('C:/Users/gonza/.gemini/antigravity/brain/c56cd9e2-5ee1-49a1-8240-a707e03f6504/romantic_background_1776469978353.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    height: 100vh;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+    overflow: hidden;
+    position: relative;
+    overscroll-behavior-y: none; 
+}
+
+/* OPTIMIZED: Viñeta que "respira". Animamos Opacidad en lugar de Background para evitar reflows del GPU */
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(5,0,2,0.1) 0%, rgba(5,0,1,0.98) 100%);
+    z-index: 1;
+    pointer-events: none;
+    animation: heartbeatVignette 6s ease-in-out infinite alternate;
+    will-change: opacity;
+}
+
+@keyframes heartbeatVignette {
+    0% { opacity: 1; }
+    100% { opacity: 0.6; } /* Baja la oscuridad un poco para latir, rinde 1000x más rápido */
+}
+
+#petalsCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    transform: translateZ(0); 
+    will-change: transform, opacity;
+}
+
+/* =========================================
+   CONTROLES UI
+   ========================================= */
+.controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    width: 100%;
+}
+
+.controls-wrapper {
+    position: relative;
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+.nav-btn {
+    background: rgba(26, 4, 9, 0.85);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.4s ease;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(255, 77, 109, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    outline: none;
+}
+
+.nav-btn:not([style*="pointer-events: none"]):hover {
+    background: var(--gold);
+    color: #3b0010;
+    transform: translateY(-5px); /* Eliminada la animación de box shadow en hover para mobile */
+}
+
+.nav-btn.next {
+    background: rgba(255, 77, 109, 0.2);
+    border-color: #ffb3c1;
+    /* Cambio la animación de glow pesada por scale super ligero */
+    animation: pulseBtn 2s infinite alternate;
+    will-change: transform;
+}
+
+@keyframes pulseBtn {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+}
+
+#page-indicator {
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    color: var(--gold);
+    opacity: 0.7;
+    letter-spacing: 3px;
+    text-shadow: 0 0 5px var(--gold-glow);
+}
+
+/* UI Prompts Móviles */
+.mobile-prompts {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.prompt-msg {
+    background: rgba(0,0,0,0.7);
+    color: var(--gold);
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-family: sans-serif;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(230, 184, 162, 0.4);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    animation: floatingMsg 4s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+@keyframes floatingMsg {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(5px); }
+}
+
+/* =========================================
+   3D BOOK CSS (MAXIMA FLUIDEZ)
+   ========================================= */
+#book-container {
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 3500px;
+    z-index: 10;
+}
+
+#book {
+    width: min(90vw, 1100px);
+    aspect-ratio: 16 / 10;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    transform: translateX(25%) translateZ(0); 
+    will-change: transform;
+}
+
+.paper {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    top: 0;
+    right: 0; 
+    transform-origin: left center;
+    transition: transform 1.4s cubic-bezier(0.25, 1, 0.5, 1);
+    transform-style: preserve-3d;
+    border-radius: 5px 15px 15px 5px;
+    /* Simplificación de la sombra de la hoja (1px sin blur rinde más) */
+    box-shadow: -1px 0 0px rgba(0,0,0,0.5); 
+    will-change: transform;
+    /* Quitamos el z-index handling de CSS ya que translateZ funciona perfecto */
+}
+
+.paper.flipped {
+    border-radius: 15px 5px 5px 15px;
+    box-shadow: 1px 0 0px rgba(0,0,0,0.5);
+}
+
+.front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    backface-visibility: hidden;
+    border-radius: inherit;
+    overflow: hidden; /* Causa algo de reflow, pero vital para q fotos no se salgan */
+    background-color: var(--paper-dark);
+}
+
+.back {
+    transform: rotateY(180deg);
+}
+
+/* =========================================
+   SCREENS & TEXTURES
+   ========================================= */
+.front-content, .back-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3.5rem;
+    text-align: center;
+    position: relative;
+}
+
+/* Sombra lomo central (ESTÁTICA, no más box-shadow animada aquí para salvar el GPU) */
+.front { box-shadow: inset 20px 0 30px rgba(0,0,0,0.9), inset -3px 0 5px rgba(255,255,255,0.05); }
+.back { box-shadow: inset -20px 0 30px rgba(0,0,0,0.9), inset 3px 0 5px rgba(255,255,255,0.05); }
+
+/* Efecto de portada de cuero épico */
+.cover {
+    background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 15%, rgba(15,2,5,0.5) 100%), 
+                url('C:/Users/gonza/.gemini/antigravity/brain/c56cd9e2-5ee1-49a1-8240-a707e03f6504/book_cover_1776469993440.png');
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #4a1520;
+}
+
+.back .cover {
+    background: linear-gradient(to left, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 15%, rgba(15,2,5,0.5) 100%), 
+                url('C:/Users/gonza/.gemini/antigravity/brain/c56cd9e2-5ee1-49a1-8240-a707e03f6504/book_cover_1776469993440.png');
+    background-size: cover;
+}
+
+/* Optimización: Brillo de cover usando OPACIDAD, no sombras pesadas */
+.cover-glow {
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 50px rgba(230, 184, 162, 0.2);
+    background: rgba(255, 77, 109, 0.05);
+    pointer-events: none;
+    animation: deepCoverOpacity 4s infinite alternate;
+    will-change: opacity;
+}
+@keyframes deepCoverOpacity {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.inner-cover {
+    background-color: #120306;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255, 77, 109, 0.03) 15px, rgba(255, 77, 109, 0.03) 30px);
+}
+
+.page {
+    background: radial-gradient(circle at center, #2e0813 0%, #0d0102 100%);
+}
+.page::after {
+    content: '';
+    position: absolute;
+    inset: 15px;
+    border: 1px solid rgba(230, 184, 162, 0.15);
+    pointer-events: none;
+    border-radius: 5px;
+}
+
+/* =========================================
+   WOW TEXT ANIMATIONS (Staggered Reveal)
+   ========================================= */
+.front-content > *, .back-content > * {
+    opacity: 0;
+    transform: translateY(20px); /* Eliminar "scale" ayuda al CPU de móviles lentos, el translateY solo es más rápido */
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform, opacity;
+}
+
+.is-visible > .front-content > *:nth-child(1), .is-visible > .back-content > *:nth-child(1) { transition-delay: 0.7s; opacity: 1; transform: translateY(0); }
+.is-visible > .front-content > *:nth-child(2), .is-visible > .back-content > *:nth-child(2) { transition-delay: 0.85s; opacity: 1; transform: translateY(0); }
+.is-visible > .front-content > *:nth-child(3), .is-visible > .back-content > *:nth-child(3) { transition-delay: 1.0s; opacity: 1; transform: translateY(0); }
+.is-visible > .front-content > *:nth-child(4), .is-visible > .back-content > *:nth-child(4) { transition-delay: 1.15s; opacity: 1; transform: translateY(0); }
+.is-visible > .front-content > *:nth-child(5), .is-visible > .back-content > *:nth-child(5) { transition-delay: 1.30s; opacity: 1; transform: translateY(0); }
+
+/* =========================================
+   PHOTOS & CINEMATICS (Sin sombras que destruyan el GPU)
+   ========================================= */
+.photo-frame {
+    width: 65%;
+    aspect-ratio: 1/1;
+    background: #000;
+    border: 4px solid var(--gold);
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8); /* Static shadow on mobile */
+    margin-bottom: 2rem;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: rgba(40,10,20, 0.5); 
+    transform: scale(1.2) translateZ(0); 
+    transition: transform 12s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+}
+
+.is-visible .photo-frame img {
+    transform: scale(1) translateZ(0);
+}
+
+.photo-caption {
+    font-family: 'Dancing Script', cursive;
+    font-size: 3rem;
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255, 77, 109, 0.4); /* Menos glow blur es más facil d procesar */
+}
+
+/* =========================================
+   TYPOGRAPHY
+   ========================================= */
+.title {
+    font-family: 'Dancing Script', cursive;
+    font-size: 4.5rem;
+    line-height: 1;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    z-index: 2;
+    text-shadow: 0 0 15px rgba(230, 184, 162, 0.5); /* Solo texto sombreado puro, NADA De Drop shadows */
+}
+
+.subtitle {
+    font-size: 1.6rem;
+    font-style: italic;
+    color: #ffb3c1;
+    margin-bottom: 1.5rem;
+    z-index: 2;
+}
+
+.cover-ornament { font-size: 3.5rem; color: var(--gold); text-shadow: 0 0 10px var(--gold-glow); margin: 25px 0; z-index: 2; }
+.inner-ornament { font-size: 4rem; color: rgba(230, 184, 162, 0.15); }
+
+.chapter {
+    font-family: 'Dancing Script', cursive;
+    font-size: 3.3rem;
+    color: var(--red-glow);
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba(255, 77, 109, 0.3);
+}
+
+.poem-text {
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: #ffd1d8;
+    text-align: left;
+    max-width: 85%;
+    font-weight: 400;
+}
+.poem-text.center-text { text-align: center; }
+
+.highlight-name {
+    font-family: 'Dancing Script', cursive;
+    font-size: 4.2rem;
+    color: #ff3355;
+    text-shadow: 0 0 20px rgba(255, 51, 85, 0.6);
+    line-height: 1;
+}
+
+/* =========================================
+   OPTI MOBILE ABSOLUTO
+   ========================================= */
+@media (max-width: 900px) {
+    #book {
+        width: 100vw;
+        aspect-ratio: 9 / 13; 
+    }
+    .front-content, .back-content { padding: 1rem 0.5rem; }
+    .page::after { inset: 5px; }
+    
+    .title { font-size: 3.2rem; margin-top: 15px;}
+    .subtitle { font-size: 1.1rem; }
+    .chapter { font-size: 2.2rem; margin-bottom: 1rem; }
+    
+    .poem-text { 
+        font-size: 1.05rem; 
+        max-width: 95%; 
+        line-height: 1.4;
+    }
+    
+    .highlight-name { font-size: 2.8rem; }
+    .photo-caption { font-size: 2.2rem; }
+    .photo-frame { width: 85%; }
+    
+    .controls { bottom: 10px; }
+    .controls-wrapper { gap: 10px; }
+    .nav-btn { padding: 10px 16px; font-size: 0.95rem; }
+
+    #book.mobile-open {
+        transform: scale(0.9) translateX(0%) translateZ(0) !important;
+    }
+    .mobile-prompts { display: flex; }
+    
+    /* DESACTIVAR COSAS PESADAS EN CELULAR DEFINITIVAMENTE */
+    .title, .highlight-name, .photo-frame, .page::after, .cover::after {
+        animation: none !important;
+    }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+    #book {
+        aspect-ratio: 16 / 9;
+        width: 85vw;
+    }
+    .mobile-prompts .rotate-msg { display: none; }
+    .poem-text { font-size: 1rem; line-height: 1.5; }
+    .chapter { font-size: 2rem; margin-bottom: 0.5rem;}
+    .title { font-size: 2.5rem;}
+    .photo-frame { width: 50%; }
+    #book.mobile-open {
+        transform: scale(1) translateX(0%) translateZ(0) !important;
+    }
+}
