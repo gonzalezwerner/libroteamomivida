@@ -57,7 +57,7 @@ bookContainer.appendChild(fragment);
 function buildContent(data, side) {
     if (data.type === 'cover') return `<div class="front-content cover"><div class="cover-glow"></div><h1 class="title">Ecos de mi<br>Amor y Perdón</h1><p class="subtitle">Para mi reina más hermosa...</p><div class="cover-ornament">❦</div><p class="instruction">Toca Avanzar o Desliza</p></div>`;
     if (data.type === 'inner-cover') return `<div class="${side}-content inner-cover"><div class="inner-ornament">❦</div></div>`;
-    if (data.type === 'back-cover-outside') return `<div class="back-content cover"><div class="cover-ornament" style="transform: rotate(180deg);">❦</div><p class="subtitle" style="margin-top: 30px;">Siempre tuyo...</p></div>`;
+    if (data.type === 'back-cover-outside') return `<div class="back-content cover"><div class="cover-ornament">❦</div><p class="subtitle" style="margin-top: 30px;">Siempre tuyo...</p></div>`;
     if (data.type === 'photo') return `<div class="${side}-content page"><div class="photo-frame"><img src="${data.src}" alt="Foto ${data.caption}"></div><div class="photo-caption">${data.caption}</div></div>`;
     if (data.type === 'page') {
         let content = '';
@@ -75,13 +75,12 @@ const papersElems = document.querySelectorAll('.paper');
 let currentLocation = 1;
 const maxLocation = numOfPapers + 1;
 
-// SISTEMA DE OPTIMIZACIÓN EXTREMA: Desconectar las capas 3D lejanas de la memoria para que los celulares de gama media/baja no se tilden. 
+// SISTEMA DE OPTIMIZACIÓN EXTREMA
 function optimizeMemory() {
     papersElems.forEach((paper, index) => {
         const pageNum = index + 1;
-        // Solo las páginas adyacentes se renderizan en 3D
         if (Math.abs(pageNum - currentLocation) > 2) {
-            paper.style.display = 'none'; // Descarga completa de la tarjeta gráfica
+            paper.style.display = 'none'; 
         } else {
             paper.style.display = 'block'; 
         }
@@ -89,24 +88,20 @@ function optimizeMemory() {
 }
 
 function updateBookPosition() {
-    // Para centrar un libro cerrado, como la portada está del lado DERECHO (50% a 100%),
-    // tenemos que trasladar todo el bloque un -25% a la izquierda para centrarlo visualmente.
+    bookContainer.classList.remove('book-opened', 'book-finished');
+
     if (currentLocation === 1) {
-        book.style.transform = "translateX(-25%) translateZ(0)";
+        // Nada, el CSS controla el default con la animación gentleBookFloat
     } else if (currentLocation === maxLocation) {
-        // En el final, el libro está abierto hacia la IZQUIERDA (0% a 50%).
-        // Hay que trasladarlo hacia un 25% a la derecha para centrarlo.
-        book.style.transform = "translateX(25%) translateZ(0)";
+        bookContainer.classList.add('book-finished');
     } else {
-        // En medio del libro, ambas hojas flanquean el centro. Se queda en 0.
-        book.style.transform = "translateX(0%) translateZ(0)";
+        bookContainer.classList.add('book-opened');
     }
 
     if(currentLocation === 1) indicator.innerText = "Inicio";
     else if(currentLocation === maxLocation) indicator.innerText = "Final";
     else indicator.innerText = `Página ${currentLocation - 1}`;
     
-    // Ejecutar colector de basura 3D
     optimizeMemory();
 }
 
@@ -115,7 +110,6 @@ function goNextPage() {
     if (currentLocation < maxLocation) {
         const currentPaper = papersElems[currentLocation - 1];
         
-        // Primero prender la futura pagina para que no haya flashes invisibles
         const nextTarget = currentLocation + 2; 
         if(nextTarget <= numOfPapers) papersElems[nextTarget - 1].style.display = 'block';
 
@@ -126,7 +120,8 @@ function goNextPage() {
         if(currentLocation === maxLocation) { nextBtn.style.opacity = '0.3'; nextBtn.style.pointerEvents = 'none'; }
         prevBtn.style.opacity = '1'; prevBtn.style.pointerEvents = 'auto';
         
-        if(window.innerWidth > 900 && Math.random() > 0.5) createTouchSparks(window.innerWidth/2, window.innerHeight/2, 4); 
+        // Estallido de corazones magicos al pasar
+        createMagicBurst();
     }
 }
 
@@ -134,7 +129,6 @@ function goPrevPage() {
     if (currentLocation > 1) {
         const prevPaper = papersElems[currentLocation - 2];
 
-        // Asegurar despertar la pagina
         const prevTarget = currentLocation - 3;
         if(prevTarget >= 0) papersElems[prevTarget].style.display = 'block';
 
@@ -145,7 +139,15 @@ function goPrevPage() {
         if (currentLocation === 1) { prevBtn.style.opacity = '0.3'; prevBtn.style.pointerEvents = 'none'; }
         nextBtn.style.opacity = '1'; nextBtn.style.pointerEvents = 'auto';
         
-        if(window.innerWidth > 900 && Math.random() > 0.5) createTouchSparks(window.innerWidth/2, window.innerHeight/2, 4);
+        createMagicBurst();
+    }
+}
+
+function createMagicBurst() {
+    if(window.innerWidth > 900) {
+        createTouchSparks(window.innerWidth/2, window.innerHeight/2 + 100, 8);
+    } else {
+        createTouchSparks(window.innerWidth/2, window.innerHeight/2 + 50, 4); // Liviano en movil
     }
 }
 
@@ -158,7 +160,6 @@ document.addEventListener('touchstart', e => {
     touchStartX = e.changedTouches[0].screenX;
 }, {passive: true});
 
-// Suspendemos partículas de touch en celulares para máxima batería y fluidéz en el libro
 let lastMouseMove = 0;
 document.addEventListener('mousemove', e => {
     const isMobile = window.innerWidth <= 900;
@@ -166,7 +167,7 @@ document.addEventListener('mousemove', e => {
 
     const now = Date.now();
     if(now - lastMouseMove > 60) { 
-        if(Math.random() > 0.7) createTouchSparks(e.clientX, e.clientY, 1);
+        if(Math.random() > 0.8) createTouchSparks(e.clientX, e.clientY, 1);
         lastMouseMove = now;
     }
 });
@@ -185,33 +186,35 @@ prevBtn.style.opacity = '0.3';
 prevBtn.style.pointerEvents = 'none';
 
 // ==========================================
-// WOW PARTICLES OPTIMIZADOS
+// WOW PARTICLES (ROMANTIC EDITION)
 // ==========================================
 const canvas = document.getElementById('petalsCanvas');
 const ctx = canvas.getContext('2d', { alpha: true });
 let particlesArray = [];
 let sparksArray = [];
+let fireFliesArray = [];
 
-// En celular, bajar a solo 4 pétalos cayendo lentamente para garantizar 60FPS intocables.
 const isMobile = window.innerWidth < 900;
-const numberOfParticles = isMobile ? 4 : 20; 
+const numberOfPetals = isMobile ? 6 : 25; 
+const numberOfFireflies = isMobile ? 8 : 30;
 
 function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas(); 
 
+// PÉTALOS DE ROSA
 class Particle {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height - canvas.height;
         this.size = Math.random() * 8 + 6;
         this.speedX = Math.random() * 1.5 - 0.75;
-        this.speedY = Math.random() * 1.2 + 0.3;
+        this.speedY = Math.random() * 1.5 + 0.5;
         this.angle = Math.random() * Math.PI * 2;
         this.spin = Math.random() * 0.05 - 0.025;
         this.scaleY = Math.random() * 0.5 + 0.5;
         this.scaleYDelta = Math.random() * 0.02;
-        const colors = ['rgba(255, 77, 109, 0.4)', 'rgba(255, 30, 80, 0.3)', 'rgba(230, 184, 162, 0.3)'];
+        const colors = ['rgba(255, 77, 109, 0.5)', 'rgba(255, 30, 80, 0.4)', 'rgba(230, 184, 162, 0.4)'];
         this.color = colors[Math.floor(Math.random() * colors.length)];
     }
     update() {
@@ -222,28 +225,53 @@ class Particle {
     }
     draw() {
         ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle); ctx.scale(1, this.scaleY);
-        ctx.beginPath(); ctx.ellipse(0, 0, this.size, this.size/2, 0, 0, Math.PI * 2);
+        ctx.beginPath(); ctx.ellipse(0, 0, this.size, this.size/1.5, 0, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
-        
-        if(!isMobile) { ctx.shadowBlur = 5; ctx.shadowColor = this.color; }
-        
+        if(!isMobile) { ctx.shadowBlur = 4; ctx.shadowColor = this.color; }
         ctx.fill(); ctx.restore();
     }
 }
 
+// LUCIÉRNAGAS ROMÁNTICAS
+class Firefly {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + Math.random() * 200;
+        this.size = Math.random() * 1.5 + 0.5;
+        this.speedY = -(Math.random() * 0.8 + 0.2);
+        this.speedX = Math.random() * 0.6 - 0.3;
+        this.life = Math.random() * 100;
+    }
+    update() {
+        this.y += this.speedY;
+        this.x += this.speedX + Math.sin(this.life * 0.05) * 0.6;
+        this.life += 1;
+        if (this.y < -10) { this.y = canvas.height + 10; this.x = Math.random() * canvas.width; }
+    }
+    draw() {
+        const opacity = Math.abs(Math.sin(this.life * 0.03));
+        ctx.fillStyle = `rgba(255, 230, 150, ${opacity})`;
+        ctx.beginPath();
+        if(isMobile) { ctx.fillRect(this.x, this.y, this.size*1.5, this.size*1.5); } 
+        else { ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+    }
+}
+
+// CHISPAS MÁGICAS AL INTERACTUAR
 class Spark {
     constructor(x, y) {
-        this.x = x; this.y = y;
-        this.size = Math.random() * 2 + 1; 
-        this.speedX = (Math.random() - 0.5) * 2;
-        this.speedY = (Math.random() - 0.5) * 2 - 1;
+        this.x = x + (Math.random() * 20 - 10); 
+        this.y = y + (Math.random() * 20 - 10);
+        this.size = Math.random() * 3 + 1.5; 
+        this.speedX = (Math.random() - 0.5) * 3;
+        this.speedY = (Math.random() - 0.5) * 3 - 2; // Tienden a subir
         this.life = 100;
-        this.color = (Math.random() > 0.5) ? 'rgba(255, 184, 162, ' : 'rgba(255, 77, 109, ';
+        this.color = (Math.random() > 0.4) ? 'rgba(255, 184, 162, ' : 'rgba(255, 77, 109, ';
     }
     update() {
         this.x += this.speedX; this.y += this.speedY;
-        this.life -= 4; 
-        this.size *= 0.94;
+        this.life -= 3; 
+        this.size *= 0.95;
     }
     draw() {
         ctx.fillStyle = this.color + (this.life/100) + ')';
@@ -254,16 +282,20 @@ class Spark {
 }
 
 function createTouchSparks(x, y, count = 2) {
-    if (sparksArray.length > 25) return; 
+    if (sparksArray.length > (isMobile ? 15 : 40)) return; 
     for(let i=0; i<count; i++) sparksArray.push(new Spark(x, y));
 }
 
 function initParticles() {
-    for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
+    for (let i = 0; i < numberOfPetals; i++) particlesArray.push(new Particle());
+    for (let i = 0; i < numberOfFireflies; i++) fireFliesArray.push(new Firefly());
 }
 
 function animateParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < fireFliesArray.length; i++) {
+        fireFliesArray[i].update(); fireFliesArray[i].draw();
+    }
     for (let i = 0; i < particlesArray.length; i++) {
         particlesArray[i].update(); particlesArray[i].draw();
     }
